@@ -1,0 +1,212 @@
+'use client';
+
+import Link from 'next/link';
+import { useState } from 'react';
+
+const faqs = [
+    {
+        question: 'What is CBAM?',
+        answer: 'The Carbon Border Adjustment Mechanism (CBAM) is the EU\'s carbon tax on imports. It requires importers of certain carbon-intensive goods (cement, iron/steel, aluminum, fertilizers, electricity, hydrogen) to purchase certificates matching the embedded carbon emissions in those goods. The price of certificates mirrors the EU ETS carbon price.',
+    },
+    {
+        question: 'When does CBAM take effect?',
+        answer: 'The transitional phase ran from October 2023 to December 2025 (reporting only). The definitive phase began January 1, 2026, requiring certificate purchases. The first certificates must be surrendered by September 30, 2027 for 2026 imports.',
+    },
+    {
+        question: 'How is the CBAM cost calculated?',
+        answer: 'CBAM Cost = Quantity (tonnes) × Embedded Emissions (tCO₂e/tonne) × EU ETS Price (€/tonne). If you don\'t have verified emission data, default values apply with a 10% markup in 2026, 20% in 2027, and 30% from 2028 onwards.',
+    },
+    {
+        question: 'What products are covered by CBAM?',
+        answer: 'Currently, CBAM covers: Cement (HS 2523), Iron & Steel (HS 7206-7229, 7301-7311, etc.), Aluminum (HS 7601-7616), Fertilizers (HS 2808, 2814, 3102-3105), Electricity (HS 2716), and Hydrogen (HS 2804 10 00). The scope may expand to include more sectors by 2030.',
+    },
+    {
+        question: 'Who needs to comply with CBAM?',
+        answer: 'EU importers bringing in more than 50 tonnes of CBAM-covered goods annually must apply for "Authorized CBAM Declarant" status. They are responsible for purchasing and surrendering certificates. Below 50 tonnes, simplified reporting may apply.',
+    },
+    {
+        question: 'Can I deduct carbon prices paid at origin?',
+        answer: 'Yes. If a carbon tax was paid in the country of origin for the embedded emissions, you can deduct that amount from your CBAM certificate liability. This includes carbon taxes, ETS costs, or equivalent pricing mechanisms in the origin country.',
+    },
+    {
+        question: 'What are default emission values?',
+        answer: 'Default values are EU-set emission factors for each product category, used when actual verified emission data is unavailable. Using defaults incurs a markup: 10% in 2026, 20% in 2027, 30% from 2028. This incentivizes obtaining real data from suppliers.',
+    },
+    {
+        question: 'How do I get actual emission data?',
+        answer: 'Request emission data from your suppliers, including their production processes, energy sources, and direct/indirect emissions per tonne of product. This data should be verified by an accredited third-party verifier under EU CBAM rules.',
+    },
+    {
+        question: 'Where do I buy CBAM certificates?',
+        answer: 'CBAM certificates are purchased from the national competent authority in your EU member state. Sales begin February 1, 2027. The price will be based on the weekly average EU ETS auction price.',
+    },
+    {
+        question: 'What happens if I don\'t comply?',
+        answer: 'Penalties for non-compliance include fines per tonne of unreported emissions, loss of Authorized Declarant status, and potential customs seizure of goods. The penalties are designed to be proportionate to the EU ETS penalty regime.',
+    },
+];
+
+const glossary = [
+    { term: 'CBAM', definition: 'Carbon Border Adjustment Mechanism - EU import carbon tariff' },
+    { term: 'EU ETS', definition: 'European Union Emissions Trading System - carbon market for EU industries' },
+    { term: 'tCO₂e', definition: 'Tonnes of carbon dioxide equivalent - standard emission unit' },
+    { term: 'HS Code', definition: 'Harmonized System code - international product classification' },
+    { term: 'Embedded Emissions', definition: 'Total GHG emissions from production of a good' },
+    { term: 'Default Values', definition: 'EU-set emission factors when actual data unavailable' },
+    { term: 'Authorized Declarant', definition: 'Registered EU importer permitted to submit CBAM declarations' },
+    { term: 'Carbon Leakage', definition: 'Relocation of production to countries with weaker climate policies' },
+    { term: 'Direct Emissions', definition: 'GHG released directly from production processes' },
+    { term: 'Indirect Emissions', definition: 'GHG from electricity consumption in production' },
+];
+
+const officialLinks = [
+    {
+        title: 'EU CBAM Official Page',
+        url: 'https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism_en',
+        description: 'European Commission official CBAM information',
+    },
+    {
+        title: 'EU CBAM Registry',
+        url: 'https://cbam.ec.europa.eu/',
+        description: 'Submit declarations and manage CBAM obligations',
+    },
+    {
+        title: 'CBAM Regulation (EU) 2023/956',
+        url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0956',
+        description: 'Full legal text of the CBAM regulation',
+    },
+    {
+        title: 'EU ETS Daily Prices',
+        url: 'https://www.eex.com/en/market-data/eua-primary-auction-spot-download',
+        description: 'Current EU ETS allowance auction prices',
+    },
+    {
+        title: 'CBAM Transitional Registry Guidance',
+        url: 'https://taxation-customs.ec.europa.eu/system/files/2023-08/Guidance_CBAM_Transitional_Registry.pdf',
+        description: 'Official guidance document for declarants',
+    },
+];
+
+export default function ResourcesPage() {
+    const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+    return (
+        <div className="section-padding">
+            <div className="container-custom">
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                        CBAM <span className="text-gradient-eu">Resources</span>
+                    </h1>
+                    <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+                        Frequently asked questions, terminology glossary, and official EU documentation links.
+                    </p>
+                </div>
+
+                {/* Quick Nav */}
+                <div className="flex flex-wrap justify-center gap-3 mb-12">
+                    <a href="#faq" className="btn-outline text-sm">FAQ</a>
+                    <a href="#glossary" className="btn-outline text-sm">Glossary</a>
+                    <a href="#official" className="btn-outline text-sm">Official Documents</a>
+                </div>
+
+                {/* FAQ Section */}
+                <section id="faq" className="mb-16">
+                    <h2 className="text-2xl font-bold mb-8">Frequently Asked Questions</h2>
+                    <div className="space-y-4">
+                        {faqs.map((faq, index) => (
+                            <div key={index} className="card">
+                                <button
+                                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                                    className="w-full flex items-center justify-between p-4 text-left"
+                                >
+                                    <h3 className="font-semibold pr-4">{faq.question}</h3>
+                                    <svg
+                                        className={`w-5 h-5 flex-shrink-0 transition-transform ${openFaq === index ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {openFaq === index && (
+                                    <div className="px-4 pb-4 text-slate-400 leading-relaxed">
+                                        {faq.answer}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Glossary Section */}
+                <section id="glossary" className="mb-16">
+                    <h2 className="text-2xl font-bold mb-8">CBAM Glossary</h2>
+                    <div className="card overflow-hidden">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-white/10">
+                                    <th className="text-left p-4 text-sm font-semibold text-slate-300">Term</th>
+                                    <th className="text-left p-4 text-sm font-semibold text-slate-300">Definition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {glossary.map((item, index) => (
+                                    <tr key={index} className="border-b border-white/5 last:border-0">
+                                        <td className="p-4 font-medium text-eu-blue-300">{item.term}</td>
+                                        <td className="p-4 text-sm text-slate-400">{item.definition}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                {/* Official Links Section */}
+                <section id="official" className="mb-16">
+                    <h2 className="text-2xl font-bold mb-8">Official EU Documents</h2>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {officialLinks.map((link, index) => (
+                            <a
+                                key={index}
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="card p-6 hover:border-eu-blue-500/50 group"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-lg gradient-eu flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold group-hover:text-eu-blue-300 transition-colors">{link.title}</h3>
+                                        <p className="text-sm text-slate-400 mt-1">{link.description}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </section>
+
+                {/* CTA */}
+                <div className="card p-8 text-center">
+                    <h2 className="text-2xl font-bold mb-4">Still Have Questions?</h2>
+                    <p className="text-slate-400 mb-6">
+                        Our team can help you understand your CBAM obligations and calculate your exposure.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Link href="/calculator" className="btn-primary">
+                            Calculate Your CBAM Cost
+                        </Link>
+                        <Link href="/contact" className="btn-outline">
+                            Contact Us
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

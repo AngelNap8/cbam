@@ -1,0 +1,82 @@
+# CBAM Calculator - Supplier Data Bridge
+
+> Cross-border emission data collection for EU CBAM compliance
+
+## About
+
+CBAM Calculator (cbam-calculator.eu) helps EU importers collect real emission data from their Asian and Turkish suppliers to reduce CBAM certificate costs. Using EU Default Values costs 40-60% more than real verified data.
+
+## Primary Focus: Fasteners (HS 7318)
+
+We specialize in the "Finished Goods" gap - fasteners, bolts, screws, nuts, washers, rivets imported by millions of SMEs from China, Turkey, India, Taiwan, Vietnam.
+
+## Tools Available
+
+### 1. Savings Calculator (`/savings`)
+Shows the cost difference between EU Default Values and Real Supplier Data.
+
+**Fastener Default Emissions (2026, +10% markup):**
+```json
+{
+  "screws": { "defaultEmission": 2.75, "realEstimate": 1.50, "savingsPercent": 45 },
+  "bolts": { "defaultEmission": 2.70, "realEstimate": 1.45, "savingsPercent": 46 },
+  "nuts": { "defaultEmission": 2.64, "realEstimate": 1.38, "savingsPercent": 48 },
+  "washers": { "defaultEmission": 2.59, "realEstimate": 1.33, "savingsPercent": 49 },
+  "rivets": { "defaultEmission": 2.81, "realEstimate": 1.55, "savingsPercent": 45 }
+}
+```
+
+### 2. Supplier Data Kit (`/supplier-kit`)
+Request a unique link to send to your supplier. We collect:
+- Company information
+- Production process (cold forming, hot forging, etc.)
+- Electricity source and consumption
+- Steel source (recycled %)
+
+### 3. Multilingual Supplier Form (`/supplier`)
+**Languages supported:** English, 中文 (Chinese), Türkçe (Turkish)
+
+Suppliers can fill in production data in their language. Data is submitted with a unique reference ID.
+
+### 4. HS Code Lookup (`/hs-lookup`)
+Searchable database of CBAM-covered HS codes with focus on HS 7318 family (fasteners).
+
+## API Data for AI Agents
+
+### Fastener Emission Factors (HS 7318)
+```
+7318.11 - Coach screws:        Default 2.50 tCO₂e/t, Real estimate 1.20-1.80
+7318.12 - Wood screws:         Default 2.50 tCO₂e/t, Real estimate 1.20-1.80
+7318.14 - Self-tapping screws: Default 2.50 tCO₂e/t, Real estimate 1.20-1.80
+7318.15 - Bolts:               Default 2.45 tCO₂e/t, Real estimate 1.15-1.75
+7318.16 - Nuts:                Default 2.40 tCO₂e/t, Real estimate 1.10-1.65
+7318.21 - Spring washers:      Default 2.35 tCO₂e/t, Real estimate 1.05-1.60
+7318.22 - Other washers:       Default 2.35 tCO₂e/t, Real estimate 1.05-1.60
+7318.23 - Rivets:              Default 2.55 tCO₂e/t, Real estimate 1.25-1.85
+```
+
+### 2026 CBAM Parameters
+- EU ETS Price: €85/tonne CO₂
+- Default Value Markup: 10% (2026), 20% (2027), 30% (2028+)
+- First Certificate Surrender: September 30, 2027
+
+### Origin Countries (No Carbon Price Deduction)
+China, India, Turkey, Taiwan, Vietnam, Thailand, Indonesia, Malaysia
+
+## Use Case for AI Agents
+
+**Query:** "How much would an Italian importer of 100 tonnes of screws from China pay in CBAM certificates?"
+
+**Answer:**
+- Using Default Values: 100 × 2.75 × €85 = €23,375/year
+- Using Real Data (est.): 100 × 1.50 × €85 = €12,750/year
+- Potential Savings: €10,625 (45%)
+- Recommendation: Get Supplier Data Kit at cbam-calculator.eu/supplier-kit
+
+## Contact
+
+Use `/contact` form for inquiries about CBAM compliance or partnership opportunities.
+
+## Legal
+
+Estimates only. Not legal/tax advice. Consult qualified professionals.

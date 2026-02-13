@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --eu-blue: #003399;
+    --eu-blue-light: #1a75ff;
+    --carbon-green: #00a86b;
+    --carbon-green-light: #1abc80;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #0a0f1a 0%, #111827 50%, #0f172a 100%);
+    color: #f1f5f9;
+    min-height: 100vh;
+}
+
+/* Premium Glass Effect */
+.glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* EU Blue Gradient */
+.gradient-eu {
+    background: linear-gradient(135deg, var(--eu-blue) 0%, var(--eu-blue-light) 100%);
+}
+
+/* Carbon Green Gradient */
+.gradient-carbon {
+    background: linear-gradient(135deg, var(--carbon-green) 0%, var(--carbon-green-light) 100%);
+}
+
+/* Premium Button Styles */
+.btn-primary {
+    @apply px-6 py-3 rounded-xl font-semibold text-white transition-all duration-300;
+    background: linear-gradient(135deg, var(--eu-blue) 0%, var(--eu-blue-light) 100%);
+    box-shadow: 0 4px 20px rgba(0, 51, 153, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 51, 153, 0.4);
+}
+
+.btn-secondary {
+    @apply px-6 py-3 rounded-xl font-semibold text-white transition-all duration-300;
+    background: linear-gradient(135deg, var(--carbon-green) 0%, var(--carbon-green-light) 100%);
+    box-shadow: 0 4px 20px rgba(0, 168, 107, 0.3);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 168, 107, 0.4);
+}
+
+.btn-outline {
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+    border: 2px solid var(--eu-blue);
+    color: var(--eu-blue-light);
+}
+
+.btn-outline:hover {
+    background: var(--eu-blue);
+    color: white;
+}
+
+/* Card Styles */
+.card {
+    @apply rounded-2xl p-6;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-4px);
+}
+
+/* Input Styles */
+.input-field {
+    @apply w-full px-4 py-3 rounded-xl text-white transition-all duration-300;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--eu-blue-light);
+    box-shadow: 0 0 0 3px rgba(26, 117, 255, 0.2);
+}
+
+.input-field::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Select Styles */
+.select-field {
+    @apply w-full px-4 py-3 rounded-xl text-white transition-all duration-300 cursor-pointer;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+}
+
+.select-field:focus {
+    outline: none;
+    border-color: var(--eu-blue-light);
+    box-shadow: 0 0 0 3px rgba(26, 117, 255, 0.2);
+}
+
+.select-field option {
+    background: #1e293b;
+    color: white;
+}
+
+/* Glow Effects */
+.glow-blue {
+    box-shadow: 0 0 40px rgba(0, 51, 153, 0.3);
+}
+
+.glow-green {
+    box-shadow: 0 0 40px rgba(0, 168, 107, 0.3);
+}
+
+/* Text Gradients */
+.text-gradient-eu {
+    background: linear-gradient(135deg, #4d94ff 0%, #80b3ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-gradient-carbon {
+    background: linear-gradient(135deg, #1abc80 0%, #4dca9c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Animated Background Orbs */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float 20s ease-in-out infinite;
+}
+
+.orb-blue {
+    background: var(--eu-blue);
+}
+
+.orb-green {
+    background: var(--carbon-green);
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+}
+
+/* Step Indicator */
+.step-indicator {
+    @apply flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm;
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+    background: linear-gradient(135deg, var(--eu-blue) 0%, var(--eu-blue-light) 100%);
+    color: white;
+}
+
+.step-indicator.completed {
+    background: linear-gradient(135deg, var(--carbon-green) 0%, var(--carbon-green-light) 100%);
+    color: white;
+}
+
+.step-indicator.pending {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Progress Bar */
+.progress-bar {
+    @apply h-2 rounded-full overflow-hidden;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+    @apply h-full rounded-full transition-all duration-500;
+    background: linear-gradient(90deg, var(--eu-blue) 0%, var(--carbon-green) 100%);
+}
+
+/* Stat Card */
+.stat-card {
+    @apply rounded-2xl p-6 text-center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-value {
+    @apply text-3xl md:text-4xl font-bold mb-2;
+    background: linear-gradient(135deg, #4d94ff 0%, #1abc80 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Responsive Container */
+.container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Section Spacing */
+.section-padding {
+    @apply py-16 md:py-24;
+}
+
+/* Hover Lift */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+}
+
+/* Badge Styles */
+.badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.badge-blue {
+    background: rgba(0, 51, 153, 0.2);
+    color: #80b3ff;
+    border: 1px solid rgba(0, 51, 153, 0.3);
+}
+
+.badge-green {
+    background: rgba(0, 168, 107, 0.2);
+    color: #4dca9c;
+    border: 1px solid rgba(0, 168, 107, 0.3);
+}
+
+.badge-amber {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-red {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}

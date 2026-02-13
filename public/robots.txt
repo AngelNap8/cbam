@@ -1,0 +1,23 @@
+# Robots.txt for cbam-calculator.eu
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://cbam-calculator.eu/sitemap.xml
+
+# Allow AI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# LLM manifest
+# See /llms.txt for structured AI-readable site information
