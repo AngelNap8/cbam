@@ -8,11 +8,10 @@ export default function Header() {
 
     const navigation = [
         { name: 'Savings Calculator', href: '/savings' },
-        { name: 'Pre-Check', href: '/pre-check' },
-        { name: 'Invoice Analyzer', href: '/invoice-analyzer' },
         { name: 'Supplier Kit', href: '/supplier-kit' },
-        { name: 'Email Generator', href: '/email-generator' },
         { name: 'HS Codes', href: '/hs-lookup' },
+        { name: 'Compliance', href: '/compliance' },
+        { name: 'Resources', href: '/resources' },
     ];
 
     return (

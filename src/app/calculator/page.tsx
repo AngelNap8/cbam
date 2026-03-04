@@ -139,13 +139,37 @@ export default function CalculatorPage() {
         setIsSubmitting(true);
 
         const calculatedResult = calculateCBAM();
+        const product = CBAM_PRODUCTS[selectedProduct as keyof typeof CBAM_PRODUCTS];
+        const country = ORIGIN_COUNTRIES.find(c => c.code === originCountry);
 
-        // Show results immediately - leads are captured via contact form
-        setTimeout(() => {
+        try {
+            await fetch('https://formspree.io/f/mjggvlew', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    companyName,
+                    product: product.name,
+                    quantity: `${quantity} ${product.unit}`,
+                    originCountry: country?.name,
+                    emissionSource,
+                    estimatedCost: `€${calculatedResult.netCost.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`,
+                    totalEmissions: `${calculatedResult.emissions.toFixed(2)} tCO2e`,
+                    timestamp: new Date().toISOString(),
+                    source: 'CBAM Calculator',
+                }),
+            });
+
             setResult(calculatedResult);
             setShowResult(true);
+        } catch (error) {
+            console.error('Form submission error:', error);
+            // Still show result even if form fails
+            setResult(calculatedResult);
+            setShowResult(true);
+        } finally {
             setIsSubmitting(false);
-        }, 500);
+        }
     };
 
     const nextStep = () => {
@@ -324,8 +348,8 @@ export default function CalculatorPage() {
                                         key={key}
                                         onClick={() => setSelectedProduct(key)}
                                         className={`p-4 rounded-xl border-2 transition-all text-left ${selectedProduct === key
-                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                            : 'border-white/10 hover:border-white/20'
+                                                ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                                : 'border-white/10 hover:border-white/20'
                                             }`}
                                     >
                                         <div className="text-2xl mb-2">{prod.icon}</div>
@@ -405,8 +429,8 @@ export default function CalculatorPage() {
                                 <button
                                     onClick={() => setEmissionSource('default')}
                                     className={`w-full p-4 rounded-xl border-2 transition-all text-left ${emissionSource === 'default'
-                                        ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                        : 'border-white/10 hover:border-white/20'
+                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                            : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <div className="font-medium mb-1">Use Default Values</div>
@@ -420,8 +444,8 @@ export default function CalculatorPage() {
                                 <button
                                     onClick={() => setEmissionSource('actual')}
                                     className={`w-full p-4 rounded-xl border-2 transition-all text-left ${emissionSource === 'actual'
-                                        ? 'border-carbon-500 bg-carbon-500/10'
-                                        : 'border-white/10 hover:border-white/20'
+                                            ? 'border-carbon-500 bg-carbon-500/10'
+                                            : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <div className="font-medium mb-1">Enter Actual Emissions</div>

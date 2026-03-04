@@ -1,0 +1,8 @@
+{
+  "/page": "app/page.js",
+  "/supplier-kit/page": "app/supplier-kit/page.js",
+  "/hs-lookup/page": "app/hs-lookup/page.js",
+  "/compliance/page": "app/compliance/page.js",
+  "/resources/page": "app/resources/page.js",
+  "/calculator/page": "app/calculator/page.js"
+}
