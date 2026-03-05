@@ -1,12 +1,13 @@
 import Link from 'next/link';
+import CarbonPriceDisplay from '@/components/CarbonPriceDisplay';
+import { EU_ETS_CONFIG } from '@/lib/carbonPrice';
 
 export default function HomePage() {
-    // Current date context: January 13, 2026
     // CBAM definitive phase started January 1, 2026
     // First certificate surrender: September 30, 2027
 
     const stats = [
-        { value: '€85+', label: 'Avg. EU ETS Price/tonne' },
+        { value: `€${EU_ETS_CONFIG.price.toFixed(0)}`, label: 'EU ETS Price/tonne CO₂' },
         { value: '10%', label: '2026 Default Markup' },
         { value: 'Sep 2027', label: 'First Surrender Deadline' },
     ];
@@ -65,6 +66,11 @@ export default function HomePage() {
                             </Link>
                         </div>
 
+                        {/* Live Price Ticker */}
+                        <div className="flex justify-center mb-6">
+                            <CarbonPriceDisplay compact={true} />
+                        </div>
+
                         {/* Stats */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                             {stats.map((stat) => (
@@ -74,6 +80,28 @@ export default function HomePage() {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Regulatory Citation */}
+                        <p className="text-xs text-slate-500 mt-6 text-center">
+                            Based on{' '}
+                            <a
+                                href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0956"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-eu-blue-400 hover:underline"
+                            >
+                                Regulation (EU) 2023/956
+                            </a>{' '}
+                            and{' '}
+                            <a
+                                href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1773"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-eu-blue-400 hover:underline"
+                            >
+                                Implementing Reg. (EU) 2023/1773
+                            </a>
+                        </p>
                     </div>
                 </div>
             </section>
@@ -104,7 +132,7 @@ export default function HomePage() {
                                     <div>
                                         <h3 className="text-lg font-semibold mb-2">Price = EU ETS Rate</h3>
                                         <p className="text-slate-400 text-sm">
-                                            CBAM certificate prices mirror EU ETS allowance prices, currently averaging €85+ per tonne CO₂.
+                                            CBAM certificate prices mirror EU ETS allowance prices, currently around €{EU_ETS_CONFIG.price}/tonne CO₂.
                                         </p>
                                     </div>
                                 </div>
@@ -154,6 +182,11 @@ export default function HomePage() {
                                 <p><strong className="text-white">Quantity:</strong> Tonnes of imported goods</p>
                                 <p><strong className="text-white">Emissions:</strong> tCO₂e per tonne (actual or default)</p>
                                 <p><strong className="text-white">ETS Price:</strong> Current EU ETS allowance price</p>
+                            </div>
+                            <div className="text-center mt-4">
+                                <Link href="/methodology" className="text-sm text-eu-blue-300 hover:underline">
+                                    See full methodology & data sources →
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -229,15 +262,15 @@ export default function HomePage() {
                                 <div className="relative flex items-center md:justify-center">
                                     <div className="flex items-center gap-4 md:gap-8 ml-12 md:ml-0 md:flex-row-reverse">
                                         <div className="hidden md:block text-left w-48">
-                                            <span className="badge badge-blue">Current</span>
+                                            <span className="badge badge-blue">Now</span>
                                         </div>
                                         <div className="w-8 h-8 rounded-full bg-eu-blue-500 flex items-center justify-center z-10 absolute left-0 md:relative animate-pulse">
                                             <div className="w-3 h-3 rounded-full bg-white" />
                                         </div>
                                         <div className="card md:w-64 border-eu-blue-500/50">
-                                            <span className="badge badge-blue mb-2 md:hidden">Current</span>
-                                            <h4 className="font-semibold">Jan 13, 2026</h4>
-                                            <p className="text-sm text-slate-400">Track imports for 2026 declarations</p>
+                                            <span className="badge badge-blue mb-2 md:hidden">Now</span>
+                                            <h4 className="font-semibold">2026 — Tracking Period</h4>
+                                            <p className="text-sm text-slate-400">Track all CBAM imports for your first annual declaration</p>
                                         </div>
                                     </div>
                                 </div>
@@ -287,23 +320,116 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
+            {/* Official EU Sources — Trust Section */}
             <section className="section-padding border-t border-white/5">
                 <div className="container-custom">
-                    <div className="card p-8 md:p-12 text-center glow-blue">
+                    <div className="text-center mb-10">
+                        <span className="badge badge-blue mb-4">Verified Sources</span>
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                            Ready to Calculate Your CBAM Costs?
+                            Built on <span className="text-gradient-eu">Official EU Regulations</span>
                         </h2>
-                        <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-                            Our free calculator uses official EU default values and current ETS prices
-                            to estimate your carbon certificate liability.
+                        <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+                            Every calculation is grounded in published EU law. Verify our data sources directly.
                         </p>
-                        <Link href="/calculator" className="btn-primary text-lg px-10 py-4 inline-flex items-center gap-2">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                            Start Free Calculator
-                        </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0956" target="_blank" rel="noopener noreferrer" className="card p-5 hover:border-eu-blue-500/50 group text-center">
+                            <div className="w-12 h-12 rounded-xl gradient-eu flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <h3 className="font-semibold text-sm group-hover:text-eu-blue-300 transition-colors">CBAM Regulation</h3>
+                            <p className="text-xs text-slate-500 mt-1">Reg. (EU) 2023/956 — EUR-Lex</p>
+                            <span className="text-xs text-eu-blue-400 mt-2 inline-block">View on EUR-Lex ↗</span>
+                        </a>
+                        <a href="https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism_en" target="_blank" rel="noopener noreferrer" className="card p-5 hover:border-eu-blue-500/50 group text-center">
+                            <div className="w-12 h-12 rounded-xl gradient-eu flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" /></svg>
+                            </div>
+                            <h3 className="font-semibold text-sm group-hover:text-eu-blue-300 transition-colors">EC Official Page</h3>
+                            <p className="text-xs text-slate-500 mt-1">European Commission CBAM</p>
+                            <span className="text-xs text-eu-blue-400 mt-2 inline-block">Visit EC ↗</span>
+                        </a>
+                        <a href="https://cbam.ec.europa.eu/authorised-declarant" target="_blank" rel="noopener noreferrer" className="card p-5 hover:border-eu-blue-500/50 group text-center">
+                            <div className="w-12 h-12 rounded-xl gradient-eu flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                            </div>
+                            <h3 className="font-semibold text-sm group-hover:text-eu-blue-300 transition-colors">CBAM Registry</h3>
+                            <p className="text-xs text-slate-500 mt-1">Official EU CBAM portal</p>
+                            <span className="text-xs text-eu-blue-400 mt-2 inline-block">Open Registry ↗</span>
+                        </a>
+                        <a href="https://www.eex.com/en/markets/environmental-markets/eu-ets-auctions" target="_blank" rel="noopener noreferrer" className="card p-5 hover:border-eu-blue-500/50 group text-center">
+                            <div className="w-12 h-12 rounded-xl bg-carbon-500/20 border border-carbon-500/30 flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6 text-carbon-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                            </div>
+                            <h3 className="font-semibold text-sm group-hover:text-eu-blue-300 transition-colors">ETS Price Data</h3>
+                            <p className="text-xs text-slate-500 mt-1">EEX daily auction prices</p>
+                            <span className="text-xs text-eu-blue-400 mt-2 inline-block">View prices ↗</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            {/* Authorized Declarant CTA Section */}
+            <section className="section-padding border-t border-white/5">
+                <div className="container-custom">
+                    <div className="card p-8 md:p-10 border border-red-500/40 bg-red-900/5 mb-8">
+                        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                            <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center flex-shrink-0 text-2xl">
+                                🪪
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-xl font-bold text-red-300 mb-2">Are You Registered as an Authorized CBAM Declarant?</h2>
+                                <p className="text-slate-400 text-sm">
+                                    Mandatory since January 1, 2026 under{' '}
+                                    <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0956" target="_blank" rel="noopener noreferrer" className="text-eu-blue-400 hover:underline">Reg. (EU) 2023/956, Art. 5</a>.
+                                    Importers with over 50 tonnes/year of CBAM goods must apply through their{' '}
+                                    <a href="https://cbam.ec.europa.eu/authorised-declarant" target="_blank" rel="noopener noreferrer" className="text-eu-blue-400 hover:underline">National Competent Authority</a>{' '}
+                                    or risk non-compliance penalties.
+                                </p>
+                            </div>
+                            <Link href="/declarant-checklist" className="btn-outline text-sm whitespace-nowrap flex-shrink-0">
+                                Application Checklist →
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Dual CTA — Lead Funnel */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {/* Path 1: Calculate Your Costs */}
+                        <div className="card p-8 md:p-10 text-center">
+                            <div className="w-16 h-16 rounded-2xl gradient-eu flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h2 className="text-2xl font-bold mb-3">Calculate Your CBAM Costs</h2>
+                            <p className="text-slate-400 text-sm mb-6">
+                                Free estimate using official EU default values and current ETS price. No registration required.
+                            </p>
+                            <Link href="/calculator" className="btn-primary w-full py-3">
+                                Start Free Calculator
+                            </Link>
+                        </div>
+
+                        {/* Path 2: Reduce Your Costs — LEAD CAPTURE */}
+                        <div className="card p-8 md:p-10 text-center border-carbon-500/30 glow-green">
+                            <div className="w-16 h-16 rounded-2xl bg-carbon-500/20 border border-carbon-500/30 flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-carbon-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h2 className="text-2xl font-bold mb-3">Reduce Your CBAM Costs</h2>
+                            <p className="text-slate-400 text-sm mb-6">
+                                Get real emission data from your suppliers and save 40-60%. We provide the tools and guidance.
+                            </p>
+                            <Link href="/supplier-kit" className="btn-secondary w-full py-3">
+                                Get Supplier Data Kit
+                            </Link>
+                            <Link href="/contact" className="text-sm text-eu-blue-400 hover:underline mt-3 inline-block">
+                                Or request a free assessment →
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>

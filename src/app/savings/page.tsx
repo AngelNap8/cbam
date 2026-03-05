@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import CarbonPriceDisplay from '@/components/CarbonPriceDisplay';
+import { EU_ETS_CONFIG } from '@/lib/carbonPrice';
 
 // Fastener products with realistic emission ranges
 const FASTENER_PRODUCTS = [
@@ -25,8 +27,8 @@ const ORIGIN_COUNTRIES = [
     { code: 'MY', name: 'Malaysia', flag: '🇲🇾' },
 ];
 
-// 2026 values
-const EU_ETS_PRICE = 85;
+// 2026 values — price managed centrally in /src/lib/carbonPrice.ts
+const EU_ETS_PRICE = EU_ETS_CONFIG.price;
 const DEFAULT_MARKUP_2026 = 0.10;
 
 export default function SavingsCalculatorPage() {
@@ -34,6 +36,10 @@ export default function SavingsCalculatorPage() {
     const [quantity, setQuantity] = useState('');
     const [origin, setOrigin] = useState('');
     const [calculated, setCalculated] = useState(false);
+    const [emailRequested, setEmailRequested] = useState(false);
+    const [email, setEmail] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const selectedProduct = FASTENER_PRODUCTS.find(p => p.id === product);
     const selectedOrigin = ORIGIN_COUNTRIES.find(c => c.code === origin);
@@ -41,7 +47,37 @@ export default function SavingsCalculatorPage() {
 
     const calculate = () => {
         if (product && quantity && origin && qty > 0) {
+            setEmailRequested(true);
+        }
+    };
+
+    const handleEmailSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        try {
+            await fetch('https://formspree.io/f/mjggvlew', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: 'Savings Calculator Request',
+                    email,
+                    companyName,
+                    product: selectedProduct?.name,
+                    quantity,
+                    originCountry: selectedOrigin?.name,
+                }),
+            });
+
             setCalculated(true);
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            // Show result anyway on error to not block user
+            setCalculated(true);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -50,6 +86,9 @@ export default function SavingsCalculatorPage() {
         setQuantity('');
         setOrigin('');
         setCalculated(false);
+        setEmailRequested(false);
+        setEmail('');
+        setCompanyName('');
     };
 
     // Calculations
@@ -75,13 +114,16 @@ export default function SavingsCalculatorPage() {
                     <h1 className="text-3xl md:text-4xl font-bold mb-4">
                         Are You <span className="text-gradient-eu">Overpaying</span> on CBAM?
                     </h1>
-                    <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+                    <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-6">
                         EU Default Values are <strong>designed to be punitive</strong>. See how much you could save
                         with real supplier emission data.
                     </p>
+                    <div className="flex justify-center">
+                        <CarbonPriceDisplay compact={true} />
+                    </div>
                 </div>
 
-                {!calculated ? (
+                {!calculated && !emailRequested && (
                     /* Input Form */
                     <div className="card p-6 md:p-8">
                         <h2 className="text-xl font-semibold mb-6">Calculate Your Potential Savings</h2>
@@ -139,7 +181,71 @@ export default function SavingsCalculatorPage() {
                             </button>
                         </div>
                     </div>
-                ) : (
+                )}
+
+                {emailRequested && !calculated && (
+                    /* Email Gate Form */
+                    <div className="card p-6 md:p-8 max-w-lg mx-auto glow-blue text-center">
+                        <div className="w-16 h-16 rounded-full bg-eu-blue-500/20 flex items-center justify-center mx-auto mb-4">
+                            <span className="text-2xl">🔒</span>
+                        </div>
+                        <h2 className="text-xl font-semibold mb-2">Your Results Are Ready</h2>
+                        <p className="text-slate-400 mb-6 text-sm">
+                            Enter your email to view your detailed savings calculation and receive a summary.
+                        </p>
+
+                        <form onSubmit={handleEmailSubmit} className="space-y-4 text-left">
+                            <div>
+                                <label className="block text-sm text-slate-400 mb-2">Business Email *</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="name@company.com"
+                                    className="input-field"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm text-slate-400 mb-2">Company Name (Optional)</label>
+                                <input
+                                    type="text"
+                                    value={companyName}
+                                    onChange={(e) => setCompanyName(e.target.value)}
+                                    placeholder="Your Company Ltd"
+                                    className="input-field"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={!email || isSubmitting}
+                                className="btn-primary w-full py-3 mt-4 flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    'Unlock My Savings Results'
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setEmailRequested(false)}
+                                disabled={isSubmitting}
+                                className="w-full text-sm text-slate-500 hover:text-white mt-2 transition-colors"
+                            >
+                                ← Back to edit details
+                            </button>
+                        </form>
+                    </div>
+                )}
+
+                {calculated && (
                     /* Results */
                     <div className="space-y-6">
                         {/* Savings Banner */}
@@ -220,6 +326,11 @@ export default function SavingsCalculatorPage() {
                             <Link href="/supplier-kit" className="btn-secondary text-lg px-8 py-4 inline-block">
                                 Get Supplier Data Kit →
                             </Link>
+                            <div className="mt-3">
+                                <Link href="/contact" className="text-sm text-eu-blue-400 hover:underline">
+                                    Or request a free assessment with a CBAM advisor
+                                </Link>
+                            </div>
                         </div>
 
                         {/* Reset */}
@@ -250,7 +361,8 @@ export default function SavingsCalculatorPage() {
                             <h3 className="font-semibold mb-2">10% Markup in 2026</h3>
                             <p className="text-sm text-slate-400">
                                 On top of already high defaults, a <strong>10% penalty markup</strong> is added if
-                                you don&apos;t provide real data. This rises to 30% by 2028.
+                                you don&apos;t provide real data. This rises to 30% by 2028
+                                (<a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0956" target="_blank" rel="noopener noreferrer" className="text-eu-blue-400 hover:underline">Art. 36, Reg. 2023/956</a>).
                             </p>
                         </div>
                         <div className="card p-6">

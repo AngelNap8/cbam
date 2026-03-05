@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import CarbonPriceDisplay from '@/components/CarbonPriceDisplay';
+import { EU_ETS_CONFIG } from '@/lib/carbonPrice';
 
 // CBAM Data based on EU regulations
 const CBAM_PRODUCTS = {
@@ -76,13 +78,13 @@ const ORIGIN_COUNTRIES = [
     { code: 'OTHER', name: 'Other (No carbon price)', carbonPrice: 0 },
 ];
 
-// Current EU ETS price (as of January 2026)
-const EU_ETS_PRICE = 85; // EUR per tonne CO2
+// Current EU ETS price — managed in /src/lib/carbonPrice.ts
+const EU_ETS_PRICE = EU_ETS_CONFIG.price;
 
 // 2026 default value markup
 const DEFAULT_MARKUP_2026 = 0.10;
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4;
 
 interface CalculationResult {
     grossCost: number;
@@ -134,46 +136,14 @@ export default function CalculatorPage() {
         };
     };
 
-    const handleEmailSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
+    const handleCalculate = () => {
         const calculatedResult = calculateCBAM();
-        const product = CBAM_PRODUCTS[selectedProduct as keyof typeof CBAM_PRODUCTS];
-        const country = ORIGIN_COUNTRIES.find(c => c.code === originCountry);
-
-        try {
-            await fetch('https://formspree.io/f/mjggvlew', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email,
-                    companyName,
-                    product: product.name,
-                    quantity: `${quantity} ${product.unit}`,
-                    originCountry: country?.name,
-                    emissionSource,
-                    estimatedCost: `€${calculatedResult.netCost.toLocaleString('de-DE', { minimumFractionDigits: 2 })}`,
-                    totalEmissions: `${calculatedResult.emissions.toFixed(2)} tCO2e`,
-                    timestamp: new Date().toISOString(),
-                    source: 'CBAM Calculator',
-                }),
-            });
-
-            setResult(calculatedResult);
-            setShowResult(true);
-        } catch (error) {
-            console.error('Form submission error:', error);
-            // Still show result even if form fails
-            setResult(calculatedResult);
-            setShowResult(true);
-        } finally {
-            setIsSubmitting(false);
-        }
+        setResult(calculatedResult);
+        setShowResult(true);
     };
 
     const nextStep = () => {
-        if (step < 5) setStep((step + 1) as Step);
+        if (step < 4) setStep((step + 1) as Step);
     };
 
     const prevStep = () => {
@@ -198,8 +168,10 @@ export default function CalculatorPage() {
             case 1: return !!selectedProduct;
             case 2: return !!quantity && parseFloat(quantity) > 0;
             case 3: return !!originCountry;
-            case 4: return emissionSource === 'default' || (!!actualEmissions && parseFloat(actualEmissions) > 0);
-            default: return true;
+            case 4: {
+                const hasValidEmission = emissionSource === 'default' || (!!actualEmissions && parseFloat(actualEmissions) > 0);
+                return hasValidEmission;
+            }
         }
     };
 
@@ -218,7 +190,10 @@ export default function CalculatorPage() {
                                 </svg>
                             </div>
                             <h1 className="text-3xl md:text-4xl font-bold mb-2">Your CBAM Estimate</h1>
-                            <p className="text-slate-400">Based on current EU ETS price of €{EU_ETS_PRICE}/tonne CO₂</p>
+                            <p className="text-slate-400">
+                                Based on EU ETS price of €{EU_ETS_PRICE}/tonne CO₂ ·{' '}
+                                <a href="https://www.eex.com/en/markets/environmental-markets/eu-ets-auctions" target="_blank" rel="noopener noreferrer" className="text-eu-blue-400 hover:underline text-sm">EEX source ↗</a>
+                            </p>
                         </div>
 
                         {/* Main Result */}
@@ -269,21 +244,64 @@ export default function CalculatorPage() {
                             )}
                         </div>
 
+                        {/* Savings Opportunity — Lead Funnel */}
+                        {result.markup > 0 && (
+                            <div className="p-6 rounded-2xl border-2 border-carbon-500/40 bg-carbon-500/5 mb-6">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-carbon-500/20 flex items-center justify-center flex-shrink-0 text-xl">
+                                        💰
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-carbon-300 mb-1">You Could Be Overpaying</h3>
+                                        <p className="text-sm text-slate-400 mb-3">
+                                            This estimate uses <strong>EU default values</strong> with a {result.markup}% penalty markup.
+                                            Real supplier emissions are typically 40-60% lower. With verified data, your cost could drop to
+                                            as low as <strong className="text-carbon-400">€{(result.netCost * 0.45).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</strong>.
+                                        </p>
+                                        <div className="flex flex-col sm:flex-row gap-3">
+                                            <Link href="/supplier-kit" className="btn-secondary text-sm py-2 px-4">
+                                                Get Supplier Data Kit →
+                                            </Link>
+                                            <Link href="/savings" className="text-sm text-eu-blue-400 hover:underline flex items-center gap-1 py-2">
+                                                Calculate exact savings →
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Actions */}
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button onClick={resetCalculator} className="btn-outline flex-1">
                                 Calculate Another
                             </button>
                             <Link href="/contact" className="btn-primary flex-1 text-center">
-                                Get Expert Consultation
+                                Request Free Assessment
                             </Link>
                         </div>
 
+                        {/* Trust Footer */}
+                        <div className="mt-8 p-4 rounded-xl bg-slate-800/50 border border-white/5">
+                            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
+                                <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0956" target="_blank" rel="noopener noreferrer" className="hover:text-eu-blue-400 transition-colors">
+                                    📄 Reg. (EU) 2023/956
+                                </a>
+                                <Link href="/methodology" className="hover:text-eu-blue-400 transition-colors">
+                                    📐 Our Methodology
+                                </Link>
+                                <span>🔒 No Data Stored</span>
+                                <span>⚠️ Estimation Only</span>
+                            </div>
+                        </div>
+
                         {/* Disclaimer */}
-                        <div className="mt-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                        <div className="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
                             <p className="text-xs text-amber-200/80 text-center">
-                                This estimate is for informational purposes only. Actual CBAM costs may vary based on
-                                verified emission data, EU ETS price fluctuations, and regulatory updates.
+                                This estimate is for informational purposes only, per{' '}
+                                <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0956" target="_blank" rel="noopener noreferrer" className="underline">Regulation (EU) 2023/956</a>.
+                                Actual costs depend on verified emission data, EU ETS price fluctuations, and origin country carbon pricing.
+                                Consult a qualified CBAM advisor for compliance.
                             </p>
                         </div>
                     </div>
@@ -300,15 +318,21 @@ export default function CalculatorPage() {
                     <h1 className="text-3xl md:text-4xl font-bold mb-4">
                         CBAM Cost <span className="text-gradient-eu">Calculator</span>
                     </h1>
-                    <p className="text-slate-400">
+                    <p className="text-slate-400 mb-4">
                         Estimate your Carbon Border Adjustment Mechanism certificate costs in 4 simple steps.
+                    </p>
+                    <div className="flex justify-center">
+                        <CarbonPriceDisplay compact={true} />
+                    </div>
+                    <p className="text-xs text-amber-400/80 mt-3">
+                        ⚠️ This is an estimation tool, not an official EU platform. Actual costs depend on verified data and current ETS prices.
                     </p>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="mb-8">
                     <div className="flex justify-between mb-3">
-                        {[1, 2, 3, 4, 5].map((s) => (
+                        {[1, 2, 3, 4].map((s) => (
                             <div
                                 key={s}
                                 className={`step-indicator ${s < step ? 'completed' : s === step ? 'active' : 'pending'
@@ -325,14 +349,13 @@ export default function CalculatorPage() {
                         ))}
                     </div>
                     <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${((step - 1) / 4) * 100}%` }} />
+                        <div className="progress-fill" style={{ width: `${((step - 1) / 3) * 100}%` }} />
                     </div>
                     <div className="flex justify-between mt-2 text-xs text-slate-500">
                         <span>Product</span>
                         <span>Quantity</span>
                         <span>Origin</span>
                         <span>Emissions</span>
-                        <span>Report</span>
                     </div>
                 </div>
 
@@ -348,8 +371,8 @@ export default function CalculatorPage() {
                                         key={key}
                                         onClick={() => setSelectedProduct(key)}
                                         className={`p-4 rounded-xl border-2 transition-all text-left ${selectedProduct === key
-                                                ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                                : 'border-white/10 hover:border-white/20'
+                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                            : 'border-white/10 hover:border-white/20'
                                             }`}
                                     >
                                         <div className="text-2xl mb-2">{prod.icon}</div>
@@ -421,7 +444,7 @@ export default function CalculatorPage() {
                         </div>
                     )}
 
-                    {/* Step 4: Emission Data Source */}
+                    {/* Step 4 auto-calculates when proceeding */}
                     {step === 4 && product && (
                         <div>
                             <h2 className="text-xl font-semibold mb-6">Emission Data Source</h2>
@@ -429,8 +452,8 @@ export default function CalculatorPage() {
                                 <button
                                     onClick={() => setEmissionSource('default')}
                                     className={`w-full p-4 rounded-xl border-2 transition-all text-left ${emissionSource === 'default'
-                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <div className="font-medium mb-1">Use Default Values</div>
@@ -444,8 +467,8 @@ export default function CalculatorPage() {
                                 <button
                                     onClick={() => setEmissionSource('actual')}
                                     className={`w-full p-4 rounded-xl border-2 transition-all text-left ${emissionSource === 'actual'
-                                            ? 'border-carbon-500 bg-carbon-500/10'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'border-carbon-500 bg-carbon-500/10'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <div className="font-medium mb-1">Enter Actual Emissions</div>
@@ -459,7 +482,7 @@ export default function CalculatorPage() {
                             </div>
 
                             {emissionSource === 'actual' && (
-                                <div>
+                                <div className="mb-6">
                                     <label className="block text-sm text-slate-400 mb-2">
                                         Actual emissions (tCO₂e per {product.unit})
                                     </label>
@@ -474,65 +497,18 @@ export default function CalculatorPage() {
                                     />
                                 </div>
                             )}
+
+                            <button
+                                onClick={handleCalculate}
+                                disabled={emissionSource === 'actual' && (!actualEmissions || parseFloat(actualEmissions) <= 0)}
+                                className="btn-secondary w-full py-4 text-lg disabled:opacity-50"
+                            >
+                                Calculate CBAM Cost
+                            </button>
                         </div>
                     )}
 
-                    {/* Step 5: Email Gate */}
-                    {step === 5 && (
-                        <div>
-                            <h2 className="text-xl font-semibold mb-2">Get Your CBAM Report</h2>
-                            <p className="text-slate-400 text-sm mb-6">
-                                Enter your details to receive a detailed cost breakdown and PDF report.
-                            </p>
-                            <form onSubmit={handleEmailSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm text-slate-400 mb-2">Business Email *</label>
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="your@company.com"
-                                        className="input-field"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-slate-400 mb-2">Company Name</label>
-                                    <input
-                                        type="text"
-                                        value={companyName}
-                                        onChange={(e) => setCompanyName(e.target.value)}
-                                        placeholder="Your Company Ltd."
-                                        className="input-field"
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={!email || isSubmitting}
-                                    className="btn-secondary w-full py-4 disabled:opacity-50"
-                                >
-                                    {isSubmitting ? (
-                                        <span className="flex items-center justify-center gap-2">
-                                            <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                            </svg>
-                                            Calculating...
-                                        </span>
-                                    ) : (
-                                        'Generate CBAM Report'
-                                    )}
-                                </button>
-                            </form>
-                            <p className="text-xs text-slate-500 text-center mt-4">
-                                By submitting, you agree to receive your report and occasional updates.
-                                We respect your privacy.
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Navigation Buttons */}
-                    {step < 5 && (
+                    {step < 4 && (
                         <div className="flex gap-4 mt-8">
                             {step > 1 && (
                                 <button onClick={prevStep} className="btn-outline flex-1">
@@ -547,11 +523,6 @@ export default function CalculatorPage() {
                                 Continue →
                             </button>
                         </div>
-                    )}
-                    {step === 5 && (
-                        <button onClick={prevStep} className="btn-outline w-full mt-4">
-                            ← Back to Edit
-                        </button>
                     )}
                 </div>
 

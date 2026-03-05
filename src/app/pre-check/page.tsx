@@ -35,7 +35,7 @@ export default function PreCheckPage() {
         importsToEU: null as boolean | null,
         productCategory: '',
         originCountry: '',
-        annualValue: '',
+        annualTonnes: '',
         isImporterOfRecord: null as boolean | null,
     });
     const [result, setResult] = useState<PreCheckResult | null>(null);
@@ -69,14 +69,18 @@ export default function PreCheckPage() {
             };
         }
 
-        const annualValueNum = parseFloat(answers.annualValue) || 0;
-        if (annualValueNum < 150) {
+        const annualTonnesNum = parseFloat(answers.annualTonnes) || 0;
+        // De minimis: importers <50 tonnes/year (excl. electricity & hydrogen) are exempt
+        const isElectricityOrHydrogen = answers.productCategory === 'electricity' || answers.productCategory === 'hydrogen';
+        if (!isElectricityOrHydrogen && annualTonnesNum > 0 && annualTonnesNum < 50) {
             return {
                 isSubject: false,
-                reason: 'Imports with a value under €150 per consignment may be exempt under de minimis rules.',
+                reason: `Good news! Your annual import volume of ~${annualTonnesNum} tonnes is below the de minimis threshold of 50 tonnes/year. You are likely exempt from CBAM certificate obligations (but may still need to monitor your volumes).`,
                 nextSteps: [
-                    'This exemption applies per shipment, not annual total.',
-                    'If you have multiple shipments, you may still be subject to CBAM.',
+                    'Keep tracking your annual import volumes — if you exceed 50 t/year, obligations apply.',
+                    'The de minimis threshold applies to total annual tonnage, not per shipment.',
+                    'Electricity and hydrogen imports are NOT covered by de minimis.',
+                    'Consult official EU guidance to confirm your exemption.',
                 ],
             };
         }
@@ -130,7 +134,7 @@ export default function PreCheckPage() {
             importsToEU: null,
             productCategory: '',
             originCountry: '',
-            annualValue: '',
+            annualTonnes: '',
             isImporterOfRecord: null,
         });
         setResult(null);
@@ -141,7 +145,7 @@ export default function PreCheckPage() {
             case 1: return answers.importsToEU !== null;
             case 2: return !!answers.productCategory;
             case 3: return !!answers.originCountry;
-            case 4: return !!answers.annualValue;
+            case 4: return !!answers.annualTonnes && parseFloat(answers.annualTonnes) > 0;
             case 5: return answers.isImporterOfRecord !== null;
             default: return true;
         }
@@ -231,7 +235,7 @@ export default function PreCheckPage() {
                             <div
                                 key={s}
                                 className={`step-indicator ${typeof step === 'number' && s < step ? 'completed' :
-                                        s === step ? 'active' : 'pending'
+                                    s === step ? 'active' : 'pending'
                                     }`}
                             >
                                 {typeof step === 'number' && s < step ? (
@@ -260,8 +264,8 @@ export default function PreCheckPage() {
                                 <button
                                     onClick={() => setAnswers({ ...answers, importsToEU: true })}
                                     className={`p-6 rounded-xl border-2 transition-all ${answers.importsToEU === true
-                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <span className="text-3xl mb-2 block">✅</span>
@@ -270,8 +274,8 @@ export default function PreCheckPage() {
                                 <button
                                     onClick={() => setAnswers({ ...answers, importsToEU: false })}
                                     className={`p-6 rounded-xl border-2 transition-all ${answers.importsToEU === false
-                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <span className="text-3xl mb-2 block">❌</span>
@@ -291,8 +295,8 @@ export default function PreCheckPage() {
                                         key={product.id}
                                         onClick={() => setAnswers({ ...answers, productCategory: product.id })}
                                         className={`p-4 rounded-xl border-2 transition-all text-left ${answers.productCategory === product.id
-                                                ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                                : 'border-white/10 hover:border-white/20'
+                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                            : 'border-white/10 hover:border-white/20'
                                             }`}
                                     >
                                         <span className="text-2xl mb-2 block">{product.icon}</span>
@@ -335,21 +339,31 @@ export default function PreCheckPage() {
                         </div>
                     )}
 
-                    {/* Step 4: Annual Value */}
+                    {/* Step 4: Annual Tonnage */}
                     {step === 4 && (
                         <div>
-                            <h2 className="text-xl font-semibold mb-6">What is your typical consignment value (EUR)?</h2>
-                            <input
-                                type="number"
-                                value={answers.annualValue}
-                                onChange={(e) => setAnswers({ ...answers, annualValue: e.target.value })}
-                                placeholder="e.g., 50000"
-                                className="input-field text-lg"
-                                min="0"
-                            />
-                            <p className="text-sm text-slate-500 mt-3">
-                                Consignments under €150 may qualify for de minimis exemption.
+                            <h2 className="text-xl font-semibold mb-4">What is your estimated annual import volume?</h2>
+                            <p className="text-sm text-slate-400 mb-6">
+                                Total tonnes/year of CBAM-covered goods imported into the EU from all suppliers.
                             </p>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    value={answers.annualTonnes}
+                                    onChange={(e) => setAnswers({ ...answers, annualTonnes: e.target.value })}
+                                    placeholder="e.g., 100"
+                                    className="input-field text-lg pr-20"
+                                    min="0"
+                                    step="0.1"
+                                />
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">tonnes/yr</span>
+                            </div>
+                            <div className="mt-4 p-4 rounded-xl bg-carbon-500/10 border border-carbon-500/20 text-sm">
+                                <p className="text-carbon-300 font-medium mb-1">💡 De Minimis Exemption</p>
+                                <p className="text-slate-400">
+                                    Importers with <strong className="text-white">&lt; 50 tonnes/year</strong> of CBAM goods (excl. electricity &amp; hydrogen) are <strong className="text-carbon-400">exempt</strong> from certificate obligations.
+                                </p>
+                            </div>
                         </div>
                     )}
 
@@ -361,8 +375,8 @@ export default function PreCheckPage() {
                                 <button
                                     onClick={() => setAnswers({ ...answers, isImporterOfRecord: true })}
                                     className={`p-6 rounded-xl border-2 transition-all ${answers.isImporterOfRecord === true
-                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <span className="text-3xl mb-2 block">✅</span>
@@ -371,8 +385,8 @@ export default function PreCheckPage() {
                                 <button
                                     onClick={() => setAnswers({ ...answers, isImporterOfRecord: false })}
                                     className={`p-6 rounded-xl border-2 transition-all ${answers.isImporterOfRecord === false
-                                            ? 'border-eu-blue-500 bg-eu-blue-500/10'
-                                            : 'border-white/10 hover:border-white/20'
+                                        ? 'border-eu-blue-500 bg-eu-blue-500/10'
+                                        : 'border-white/10 hover:border-white/20'
                                         }`}
                                 >
                                     <span className="text-3xl mb-2 block">❌</span>

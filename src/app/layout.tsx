@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://cbam-calculator.eu'),
@@ -90,6 +91,7 @@ export default function RootLayout({
             </head>
             <body className="antialiased min-h-screen flex flex-col">
                 <Header />
+                <Breadcrumbs />
                 <main className="flex-grow">
                     {children}
                 </main>

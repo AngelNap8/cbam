@@ -90,7 +90,11 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="text-2xl font-semibold text-white mb-4">8. Contact Us</h2>
                         <p>
-                            For privacy-related inquiries, please use our <Link href="/contact" className="text-eu-blue-300 hover:underline">contact form</Link>.
+                            For privacy-related inquiries, please email us at{' '}
+                            <a href="mailto:info@cbam-calculator.eu" className="text-eu-blue-300 hover:underline">
+                                info@cbam-calculator.eu
+                            </a>{' '}
+                            or use our <Link href="/contact" className="text-eu-blue-300 hover:underline">contact form</Link>.
                         </p>
                     </section>
                 </div>

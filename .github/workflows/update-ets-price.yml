@@ -1,0 +1,104 @@
+name: Update EU ETS Price
+
+on:
+  schedule:
+    # Runs every weekday at 18:00 UTC (after EU ETS market close)
+    - cron: '0 18 * * 1-5'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-price:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch EU ETS price
+        id: fetch_price
+        run: |
+          # Try to fetch from Trading Economics (public page)
+          PRICE=$(curl -s "https://tradingeconomics.com/commodity/carbon" \
+            -H "User-Agent: Mozilla/5.0" | \
+            grep -oP '(?<=data-actual=")[0-9.]+' | head -1)
+          
+          # Fallback: try alternative source
+          if [ -z "$PRICE" ] || [ "$PRICE" = "0" ]; then
+            echo "Primary source failed, trying fallback..."
+            PRICE=$(curl -s "https://markets.ft.com/data/commodities/tearsheet/summary?c=CER%2FEUR" \
+              -H "User-Agent: Mozilla/5.0" | \
+              grep -oP '(?<=Price</span><span class="mod-ui-data-list__value">)[0-9.]+' | head -1)
+          fi
+          
+          if [ -z "$PRICE" ] || [ "$PRICE" = "0" ]; then
+            echo "❌ Could not fetch price from any source"
+            echo "price_found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          
+          echo "price=$PRICE" >> "$GITHUB_OUTPUT"
+          echo "price_found=true" >> "$GITHUB_OUTPUT"
+          echo "✅ Fetched EU ETS price: €$PRICE"
+
+      - name: Update carbonPrice.ts
+        if: steps.fetch_price.outputs.price_found == 'true'
+        run: |
+          PRICE="${{ steps.fetch_price.outputs.price }}"
+          TODAY=$(date +%Y-%m-%d)
+          
+          cat > src/lib/carbonPrice.ts << EOF
+          // Centralized EU ETS carbon price configuration
+          // Auto-updated by GitHub Actions — do not hardcode prices elsewhere.
+          // Source: https://www.eex.com/en/markets/environmental-markets/eu-ets-auctions
+
+          export const EU_ETS_CONFIG = {
+              price: ${PRICE},               // EUR per tonne CO₂ — auto-updated ${TODAY}
+              lastUpdated: '${TODAY}',
+              source: 'EEX EU ETS Auctions',
+              sourceUrl: 'https://www.eex.com/en/markets/environmental-markets/eu-ets-auctions',
+          };
+          EOF
+          
+          echo "✅ Updated carbonPrice.ts to €${PRICE} on ${TODAY}"
+
+      - name: Update llms.txt price reference
+        if: steps.fetch_price.outputs.price_found == 'true'
+        run: |
+          PRICE="${{ steps.fetch_price.outputs.price }}"
+          TODAY=$(date +%Y-%m-%d)
+          
+          # Update the EU ETS Price line
+          sed -i "s/EU ETS Price: ~€[0-9.]*/EU ETS Price: ~€${PRICE}/" public/llms.txt
+          # Update the last updated date
+          sed -i "s/^# Last updated: .*/# Last updated: ${TODAY}/" public/llms.txt
+          
+          echo "✅ Updated llms.txt"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ No price change detected"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Price changed, will commit"
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          PRICE="${{ steps.fetch_price.outputs.price }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/lib/carbonPrice.ts public/llms.txt
+          git commit -m "🔄 EU ETS price update: €${PRICE}/tCO₂ [auto]"
+          git push
+
+      - name: Trigger rebuild (if using GitHub Pages)
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          echo "✅ Changes pushed. If you have a build workflow, it will trigger automatically."
+          echo "Current price: €${{ steps.fetch_price.outputs.price }}/tonne CO₂"

@@ -36,10 +36,6 @@ const TRANSLATIONS = {
         },
         additionalNotes: 'Additional Notes (optional)',
         submit: 'Submit Data',
-        submitting: 'Submitting...',
-        successTitle: 'Data Submitted Successfully!',
-        successMessage: 'Your customer will receive the emission data. Reference:',
-        requiredField: 'Required',
         disclaimer: 'Your data will be used solely for CBAM compliance calculations and shared only with the requesting EU importer.',
     },
     zh: {
@@ -73,10 +69,6 @@ const TRANSLATIONS = {
         },
         additionalNotes: '补充说明（可选）',
         submit: '提交数据',
-        submitting: '提交中...',
-        successTitle: '数据提交成功！',
-        successMessage: '您的客户将收到排放数据。参考编号：',
-        requiredField: '必填',
         disclaimer: '您的数据仅用于CBAM合规计算，仅与提出要求的欧盟进口商共享。',
     },
     tr: {
@@ -110,10 +102,6 @@ const TRANSLATIONS = {
         },
         additionalNotes: 'Ek Notlar (isteğe bağlı)',
         submit: 'Verileri Gönder',
-        submitting: 'Gönderiliyor...',
-        successTitle: 'Veriler Başarıyla Gönderildi!',
-        successMessage: 'Müşteriniz emisyon verilerini alacaktır. Referans:',
-        requiredField: 'Zorunlu',
         disclaimer: 'Verileriniz yalnızca CBAM uyumluluk hesaplamaları için kullanılacak ve yalnızca talepte bulunan AB ithalatçısı ile paylaşılacaktır.',
     },
 };
@@ -126,91 +114,9 @@ const PRODUCT_TYPES = {
 
 export default function SupplierFormPage() {
     const [lang, setLang] = useState<Language>('en');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-    const [referenceId, setReferenceId] = useState('');
-
-    const [formData, setFormData] = useState({
-        companyName: '',
-        contactPerson: '',
-        email: '',
-        productType: '',
-        annualProduction: '',
-        electricitySource: '',
-        monthlyElectricity: '',
-        steelRecycled: '',
-        productionProcess: '',
-        additionalNotes: '',
-    });
 
     const t = TRANSLATIONS[lang];
     const products = PRODUCT_TYPES[lang];
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    };
-
-    const generateRefId = () => {
-        const now = new Date();
-        return `CBAM-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
-        const refId = generateRefId();
-
-        try {
-            await fetch('https://formspree.io/f/mjggvlew', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    referenceId: refId,
-                    language: lang,
-                    formType: 'Supplier Emission Data',
-                    timestamp: new Date().toISOString(),
-                    source: 'CBAM Calculator - Supplier Form',
-                }),
-            });
-
-            setReferenceId(refId);
-            setSubmitted(true);
-        } catch (error) {
-            console.error('Submission error:', error);
-            setReferenceId(refId);
-            setSubmitted(true);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    if (submitted) {
-        return (
-            <div className="section-padding">
-                <div className="container-custom max-w-2xl">
-                    <div className="card p-8 md:p-12 text-center glow-green">
-                        <div className="w-20 h-20 rounded-full gradient-carbon flex items-center justify-center mx-auto mb-6">
-                            <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <h1 className="text-3xl font-bold mb-4">{t.successTitle}</h1>
-                        <p className="text-slate-400 mb-4">{t.successMessage}</p>
-                        <div className="bg-slate-900/50 rounded-xl p-4 mb-8">
-                            <code className="text-2xl font-mono text-carbon-400">{referenceId}</code>
-                        </div>
-                        <p className="text-sm text-slate-500">
-                            {lang === 'zh' ? '请保存此参考编号以供将来使用。' :
-                                lang === 'tr' ? 'Lütfen bu referans numarasını gelecekte kullanmak üzere kaydedin.' :
-                                    'Please save this reference number for future use.'}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="section-padding">
@@ -249,8 +155,17 @@ export default function SupplierFormPage() {
                     <p className="text-sm text-eu-blue-200">{t.intro}</p>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Form - HTML submission */}
+                <form
+                    action="https://formspree.io/f/mjggvlew"
+                    method="POST"
+                    className="space-y-8"
+                >
+                    <input type="hidden" name="_next" value="https://cbam-calculator.eu/thank-you/" />
+                    <input type="hidden" name="_subject" value="CBAM - Supplier Emission Data" />
+                    <input type="hidden" name="formType" value="Supplier Emission Data" />
+                    <input type="hidden" name="language" value={lang} />
+
                     {/* Company Information */}
                     <div className="card p-6">
                         <h2 className="text-lg font-semibold mb-4">{t.companySection}</h2>
@@ -262,8 +177,6 @@ export default function SupplierFormPage() {
                                 <input
                                     type="text"
                                     name="companyName"
-                                    value={formData.companyName}
-                                    onChange={handleChange}
                                     className="input-field"
                                     required
                                 />
@@ -276,8 +189,6 @@ export default function SupplierFormPage() {
                                     <input
                                         type="text"
                                         name="contactPerson"
-                                        value={formData.contactPerson}
-                                        onChange={handleChange}
                                         className="input-field"
                                         required
                                     />
@@ -289,8 +200,6 @@ export default function SupplierFormPage() {
                                     <input
                                         type="email"
                                         name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
                                         className="input-field"
                                         required
                                     />
@@ -309,8 +218,6 @@ export default function SupplierFormPage() {
                                 </label>
                                 <select
                                     name="productType"
-                                    value={formData.productType}
-                                    onChange={handleChange}
                                     className="select-field"
                                     required
                                 >
@@ -327,8 +234,6 @@ export default function SupplierFormPage() {
                                 <input
                                     type="number"
                                     name="annualProduction"
-                                    value={formData.annualProduction}
-                                    onChange={handleChange}
                                     className="input-field"
                                     required
                                     min="1"
@@ -348,8 +253,6 @@ export default function SupplierFormPage() {
                                     </label>
                                     <select
                                         name="electricitySource"
-                                        value={formData.electricitySource}
-                                        onChange={handleChange}
                                         className="select-field"
                                         required
                                     >
@@ -367,8 +270,6 @@ export default function SupplierFormPage() {
                                     <input
                                         type="number"
                                         name="monthlyElectricity"
-                                        value={formData.monthlyElectricity}
-                                        onChange={handleChange}
                                         className="input-field"
                                         required
                                         min="1"
@@ -381,16 +282,14 @@ export default function SupplierFormPage() {
                                     <label className="block text-sm text-slate-400 mb-2">{t.steelRecycled}</label>
                                     <select
                                         name="steelRecycled"
-                                        value={formData.steelRecycled}
-                                        onChange={handleChange}
                                         className="select-field"
                                     >
                                         <option value="">---</option>
-                                        <option value="0">0%</option>
-                                        <option value="25">~25%</option>
-                                        <option value="50">~50%</option>
-                                        <option value="75">~75%</option>
-                                        <option value="100">100%</option>
+                                        <option value="0%">0%</option>
+                                        <option value="~25%">~25%</option>
+                                        <option value="~50%">~50%</option>
+                                        <option value="~75%">~75%</option>
+                                        <option value="100%">100%</option>
                                     </select>
                                 </div>
                                 <div>
@@ -399,8 +298,6 @@ export default function SupplierFormPage() {
                                     </label>
                                     <select
                                         name="productionProcess"
-                                        value={formData.productionProcess}
-                                        onChange={handleChange}
                                         className="select-field"
                                         required
                                     >
@@ -420,8 +317,6 @@ export default function SupplierFormPage() {
                         <label className="block text-sm text-slate-400 mb-2">{t.additionalNotes}</label>
                         <textarea
                             name="additionalNotes"
-                            value={formData.additionalNotes}
-                            onChange={handleChange}
                             rows={3}
                             className="input-field resize-none"
                         />
@@ -435,10 +330,9 @@ export default function SupplierFormPage() {
                     {/* Submit */}
                     <button
                         type="submit"
-                        disabled={isSubmitting}
-                        className="btn-secondary w-full py-4 text-lg disabled:opacity-50"
+                        className="btn-secondary w-full py-4 text-lg"
                     >
-                        {isSubmitting ? t.submitting : t.submit}
+                        {t.submit}
                     </button>
                 </form>
             </div>

@@ -67,7 +67,7 @@ const officialLinks = [
     },
     {
         title: 'EU CBAM Registry',
-        url: 'https://cbam.ec.europa.eu/',
+        url: 'https://cbam.ec.europa.eu/authorised-declarant',
         description: 'Submit declarations and manage CBAM obligations',
     },
     {
@@ -77,13 +77,18 @@ const officialLinks = [
     },
     {
         title: 'EU ETS Daily Prices',
-        url: 'https://www.eex.com/en/market-data/eua-primary-auction-spot-download',
+        url: 'https://www.eex.com/en/markets/environmental-markets/eu-ets-auctions',
         description: 'Current EU ETS allowance auction prices',
     },
     {
-        title: 'CBAM Transitional Registry Guidance',
-        url: 'https://taxation-customs.ec.europa.eu/system/files/2023-08/Guidance_CBAM_Transitional_Registry.pdf',
-        description: 'Official guidance document for declarants',
+        title: 'CBAM Definitive Phase Guidance',
+        url: 'https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism_en',
+        description: 'Official European Commission guidance for the definitive CBAM phase (2026+)',
+    },
+    {
+        title: 'Authorized Declarant Application',
+        url: 'https://cbam.ec.europa.eu/authorised-declarant',
+        description: 'Register as an Authorized CBAM Declarant via the EU CBAM Registry',
     },
 ];
 

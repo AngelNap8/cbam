@@ -3,8 +3,8 @@
 import Link from 'next/link';
 
 export default function CompliancePage() {
-    // Current date: January 13, 2026
-    const currentDate = new Date('2026-01-13');
+    // Dynamic current date — always accurate
+    const now = new Date();
 
     const deadlines = [
         {
@@ -17,47 +17,40 @@ export default function CompliancePage() {
         {
             date: 'December 31, 2025',
             title: 'Transitional Phase Ends',
-            description: 'Final transitional quarterly report due.',
+            description: 'Final quarterly report submitted. Transitional phase closed.',
             status: 'completed',
             isPast: true,
         },
         {
             date: 'January 1, 2026',
-            title: 'Definitive CBAM Phase',
-            description: 'Certificate purchase requirements begin. 10% markup on default values.',
+            title: 'Definitive CBAM Phase + Authorized Declarant Requirement',
+            description: 'Certificate purchase obligations begin. Only Authorized CBAM Declarants may now import CBAM goods. 10% markup on default values applies.',
             status: 'completed',
             isPast: true,
         },
         {
-            date: 'January 13, 2026',
-            title: 'Current Date',
-            description: 'Track all imports for 2026 certificate requirements.',
-            status: 'current',
-            isPast: false,
-        },
-        {
             date: 'February 1, 2027',
             title: 'Certificate Sales Begin',
-            description: 'CBAM certificates available for purchase from national authorities.',
+            description: 'CBAM certificates available for purchase from national competent authorities.',
             status: 'upcoming',
             isPast: false,
-            daysUntil: Math.ceil((new Date('2027-02-01').getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)),
+            daysUntil: Math.ceil((new Date('2027-02-01').getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
         },
         {
             date: 'May 31, 2027',
             title: 'First Annual CBAM Declaration',
-            description: 'Submit 2026 import declaration via EU CBAM registry.',
+            description: 'Submit 2026 full-year import declaration via EU CBAM registry. This is annual reporting — one declaration per year covers all 2026 imports.',
             status: 'upcoming',
             isPast: false,
-            daysUntil: Math.ceil((new Date('2027-05-31').getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)),
+            daysUntil: Math.ceil((new Date('2027-05-31').getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
         },
         {
             date: 'September 30, 2027',
             title: 'First Certificate Surrender',
-            description: 'Surrender CBAM certificates for 2026 embedded emissions.',
+            description: 'Surrender CBAM certificates matching total 2026 embedded emissions.',
             status: 'critical',
             isPast: false,
-            daysUntil: Math.ceil((new Date('2027-09-30').getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)),
+            daysUntil: Math.ceil((new Date('2027-09-30').getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
         },
         {
             date: 'January 1, 2027',
@@ -79,37 +72,37 @@ export default function CompliancePage() {
         {
             category: 'Immediate Actions (Q1 2026)',
             items: [
-                { task: 'Apply for Authorized CBAM Declarant status', priority: 'high' },
-                { task: 'Register in the EU CBAM registry', priority: 'high' },
+                { task: 'Become an Authorized CBAM Declarant — mandatory to import CBAM goods', priority: 'high' },
+                { task: 'Register in the EU CBAM registry via your National Competent Authority', priority: 'high' },
                 { task: 'Map all imports to CBAM-covered HS codes', priority: 'high' },
-                { task: 'Request emission data from suppliers', priority: 'medium' },
+                { task: 'Verify you exceed (or are under) the 50 tonne de minimis threshold annually', priority: 'high' },
+                { task: 'Request verified emission data from your suppliers', priority: 'medium' },
                 { task: 'Set up internal tracking systems', priority: 'medium' },
             ],
         },
         {
             category: 'Ongoing Requirements',
             items: [
-                { task: 'Track all imports by quantity and origin', priority: 'high' },
+                { task: 'Track all imports by quantity and origin throughout the year', priority: 'high' },
                 { task: 'Document embedded emissions per shipment', priority: 'high' },
-                { task: 'Record any carbon prices paid at origin', priority: 'medium' },
-                { task: 'Maintain supplier emission certifications', priority: 'medium' },
-                { task: 'Prepare quarterly internal compliance reports', priority: 'low' },
+                { task: 'Record any carbon prices paid at origin country', priority: 'medium' },
+                { task: 'Maintain supplier emission certifications and verifier reports', priority: 'medium' },
+                { task: 'Prepare one annual internal compliance report (no quarterly reports)', priority: 'low' },
             ],
         },
         {
-            category: 'Before First Declaration (2027)',
+            category: 'Before First Annual Declaration (2027)',
             items: [
-                { task: 'Verify all 2026 import data is complete', priority: 'high' },
-                { task: 'Calculate total embedded emissions', priority: 'high' },
-                { task: 'Purchase sufficient CBAM certificates', priority: 'high' },
-                { task: 'Submit annual declaration by May 31', priority: 'high' },
-                { task: 'Surrender certificates by September 30', priority: 'high' },
+                { task: 'Verify all 2026 import data is complete and verified', priority: 'high' },
+                { task: 'Calculate total embedded emissions for all 2026 CBAM imports', priority: 'high' },
+                { task: 'Purchase sufficient CBAM certificates from national authority', priority: 'high' },
+                { task: 'Submit annual declaration by May 31, 2027', priority: 'high' },
+                { task: 'Surrender certificates by September 30, 2027', priority: 'high' },
             ],
         },
     ];
 
-    // Calculate days until first surrender
-    const daysToSurrender = Math.ceil((new Date('2027-09-30').getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysToSurrender = Math.ceil((new Date('2027-09-30').getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
     return (
         <div className="section-padding">
@@ -120,8 +113,51 @@ export default function CompliancePage() {
                         CBAM <span className="text-gradient-eu">Compliance</span> Timeline
                     </h1>
                     <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-                        Key deadlines and requirements for EU Carbon Border Adjustment Mechanism compliance.
+                        Key deadlines and requirements for EU Carbon Border Adjustment Mechanism compliance in the definitive phase (2026 onwards).
                     </p>
+                </div>
+
+                {/* 🔴 CRITICAL: Authorized Declarant Warning */}
+                <div className="card p-6 md:p-8 mb-10 border-2 border-red-500/60 bg-red-900/10">
+                    <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-xl font-bold text-red-300 mb-2">🔴 Mandatory Since January 1, 2026: Authorized CBAM Declarant</h2>
+                            <p className="text-slate-300 mb-4">
+                                As of January 1, 2026, <strong>only companies registered as Authorized CBAM Declarants</strong> may import CBAM-covered goods into the EU.
+                                Importing without this status is non-compliant and may result in penalties or refusal of goods.
+                            </p>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-slate-200 mb-2">How to apply:</h3>
+                                    <ol className="text-sm text-slate-400 space-y-1 list-decimal list-inside">
+                                        <li>Contact your country&apos;s National Competent Authority (NCA)</li>
+                                        <li>Submit EORI number + company registration</li>
+                                        <li>Prove annual import volume exceeds 50 tonnes</li>
+                                        <li>Receive Authorized Declarant status in the CBAM registry</li>
+                                    </ol>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-slate-200 mb-2">De Minimis Exemption:</h3>
+                                    <p className="text-sm text-slate-400">
+                                        Importers with <strong className="text-carbon-400">&lt; 50 tonnes/year</strong> total of CBAM goods (excl. electricity &amp; hydrogen) are exempt from the Authorized Declarant requirement and certificate obligations.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="mt-4 flex flex-wrap gap-3">
+                                <Link href="/pre-check" className="btn-outline text-sm">
+                                    Check Your Obligation →
+                                </Link>
+                                <Link href="/declarant-checklist" className="btn-primary text-sm">
+                                    Declarant Application Guide →
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Countdown Banner */}
@@ -149,20 +185,17 @@ export default function CompliancePage() {
                                 <div key={index} className={`relative flex items-start ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                                     {/* Content */}
                                     <div className={`ml-12 md:ml-0 md:w-1/2 ${index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12'}`}>
-                                        <div className={`card p-4 ${deadline.status === 'current' ? 'border-eu-blue-500 glow-blue' :
-                                                deadline.status === 'critical' ? 'border-red-500/50' :
-                                                    deadline.status === 'completed' ? 'opacity-60' : ''
+                                        <div className={`card p-4 ${deadline.status === 'critical' ? 'border-red-500/50' :
+                                            deadline.status === 'completed' ? 'opacity-70' : ''
                                             }`}>
                                             <div className="flex flex-wrap items-center gap-2 mb-2">
                                                 <span className={`badge ${deadline.status === 'completed' ? 'badge-green' :
-                                                        deadline.status === 'current' ? 'badge-blue' :
-                                                            deadline.status === 'critical' ? 'badge-red' :
-                                                                'badge-amber'
+                                                    deadline.status === 'critical' ? 'badge-red' :
+                                                        'badge-amber'
                                                     }`}>
                                                     {deadline.status === 'completed' ? '✓ Completed' :
-                                                        deadline.status === 'current' ? '● Now' :
-                                                            deadline.status === 'critical' ? '⚠ Critical' :
-                                                                'Upcoming'}
+                                                        deadline.status === 'critical' ? '⚠ Critical' :
+                                                            'Upcoming'}
                                                 </span>
                                                 {deadline.daysUntil && (
                                                     <span className="text-xs text-slate-500">{deadline.daysUntil} days</span>
@@ -176,16 +209,13 @@ export default function CompliancePage() {
 
                                     {/* Dot */}
                                     <div className={`absolute left-0 md:left-1/2 md:-translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center z-10 ${deadline.status === 'completed' ? 'bg-carbon-500' :
-                                            deadline.status === 'current' ? 'bg-eu-blue-500 animate-pulse' :
-                                                deadline.status === 'critical' ? 'bg-red-500' :
-                                                    'bg-amber-500/50'
+                                        deadline.status === 'critical' ? 'bg-red-500' :
+                                            'bg-amber-500/50'
                                         }`}>
                                         {deadline.status === 'completed' ? (
                                             <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                             </svg>
-                                        ) : deadline.status === 'current' ? (
-                                            <div className="w-3 h-3 rounded-full bg-white" />
                                         ) : deadline.status === 'critical' ? (
                                             <span className="text-white text-xs font-bold">!</span>
                                         ) : (
@@ -209,8 +239,8 @@ export default function CompliancePage() {
                                     {section.items.map((item, iIndex) => (
                                         <li key={iIndex} className="flex items-start gap-3">
                                             <span className={`mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 ${item.priority === 'high' ? 'bg-red-500/20 text-red-400' :
-                                                    item.priority === 'medium' ? 'bg-amber-500/20 text-amber-400' :
-                                                        'bg-slate-500/20 text-slate-400'
+                                                item.priority === 'medium' ? 'bg-amber-500/20 text-amber-400' :
+                                                    'bg-slate-500/20 text-slate-400'
                                                 }`}>
                                                 {item.priority === 'high' ? '!' : item.priority === 'medium' ? '•' : '○'}
                                             </span>
@@ -220,6 +250,25 @@ export default function CompliancePage() {
                                 </ul>
                             </div>
                         ))}
+                    </div>
+                </div>
+
+                {/* Reporting: Annual vs Quarterly clarification */}
+                <div className="card p-8 mb-12 border border-amber-500/20 bg-amber-500/5">
+                    <h2 className="text-xl font-bold mb-4 text-amber-300">📋 Definitive Phase: Annual Reporting Only</h2>
+                    <p className="text-slate-300 mb-4">
+                        The <strong>transitional phase</strong> (Oct 2023 – Dec 2025) required quarterly reports. That is now over.
+                        In the <strong>definitive phase</strong> (2026 onwards), importers submit <strong>one annual CBAM declaration</strong> per year:
+                    </p>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="p-4 rounded-lg bg-slate-800/50">
+                            <p className="text-sm font-semibold text-slate-200 mb-1">❌ Old (Transitional Phase)</p>
+                            <p className="text-sm text-slate-500">4 quarterly reports per year, reporting only — no certificate purchase</p>
+                        </div>
+                        <div className="p-4 rounded-lg bg-carbon-500/10 border border-carbon-500/20">
+                            <p className="text-sm font-semibold text-carbon-300 mb-1">✅ Now (Definitive Phase, 2026+)</p>
+                            <p className="text-sm text-slate-400">1 annual declaration per year + certificate purchase &amp; surrender</p>
+                        </div>
                     </div>
                 </div>
 
@@ -256,6 +305,9 @@ export default function CompliancePage() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link href="/calculator" className="btn-primary">
                             Calculate CBAM Cost
+                        </Link>
+                        <Link href="/declarant-checklist" className="btn-outline">
+                            Authorized Declarant Guide
                         </Link>
                         <Link href="/contact" className="btn-outline">
                             Get Expert Help
