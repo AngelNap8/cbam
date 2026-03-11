@@ -9,18 +9,24 @@ export default function SupplierKitPage() {
     const [supplierCountry, setSupplierCountry] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [submitError, setSubmitError] = useState('');
 
     const supplierLink = `https://cbam-calculator.eu/supplier`;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setSubmitError('');
 
         try {
-            await fetch('https://formspree.io/f/mjggvlew', {
+            const response = await fetch('https://formspree.io/f/mjggvlew', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
                 body: JSON.stringify({
+                    _subject: 'CBAM - Supplier Kit Request',
                     requestType: 'Supplier Data Kit Request',
                     email,
                     company,
@@ -28,11 +34,20 @@ export default function SupplierKitPage() {
                     supplierLink,
                 }),
             });
-            setIsSubmitted(true);
+
+            if (response.ok) {
+                // Lead confirmed captured in Formspree — now show supplier link
+                setIsSubmitted(true);
+            } else {
+                // Formspree rejected — show error, do NOT show supplier link
+                const data = await response.json();
+                setSubmitError(
+                    data?.error || 'Submission failed. Please try again or contact us directly.'
+                );
+            }
         } catch (error) {
             console.error('Form error:', error);
-            // Still show the link even if Formspree fails
-            setIsSubmitted(true);
+            setSubmitError('Network error. Please check your connection and try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -178,6 +193,13 @@ export default function SupplierKitPage() {
                                             'Generate Supplier Link'
                                         )}
                                     </button>
+
+                                    {/* Error message — only shown if Formspree rejects */}
+                                    {submitError && (
+                                        <div className="p-3 rounded-lg bg-red-900/30 border border-red-500/30 text-sm text-red-300 text-center">
+                                            ⚠️ {submitError}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <p className="text-xs text-slate-500 text-center mt-4">
